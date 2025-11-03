@@ -1,0 +1,339 @@
+# DevOps Sentinel - Compyle Platform Workflows Configuration
+# Defines how agents are deployed and orchestrated on the Compyle platform
+
+version: "1.0"
+project: "devops-sentinel"
+description: "Autonomous monitoring and diagnostics system"
+
+# Global environment variables
+environment:
+  PYTHONPATH: "/workspace"
+  LOG_LEVEL: "INFO"
+  TIMEZONE: "UTC"
+
+# Agent workflow definitions
+workflows:
+  monitoring-agent:
+    name: "Monitoring Agent"
+    description: "Continuous health monitoring of API endpoints"
+    type: "continuous"
+    agent_type: "monitoring"
+
+    # Deployment configuration
+    deployment:
+      runtime: "python-3.11"
+      memory: "512Mi"
+      cpu: "500m"
+      replicas: 1
+      timeout: 3600  # 1 hour
+
+      # Environment variables specific to monitoring
+      environment:
+        AGENT_NAME: "monitoring"
+        POLL_INTERVAL_SECONDS: "60"
+        TIMEOUT_SECONDS: "30"
+        FAILURE_THRESHOLD: "2"
+        RETRY_ATTEMPTS: "3"
+        SSL_WARNING_DAYS: "30"
+
+    # Triggers and schedules
+    triggers:
+      - type: "schedule"
+        schedule: "rate(1 minute)"  # Every minute
+        enabled: true
+
+    # Dependencies
+    depends_on: []
+
+    # Event handlers
+    event_handlers:
+      - event: "health_check_failure"
+        action: "trigger_triage_workflow"
+        target_workflow: "triage-agent"
+
+      - event: "service_recovery"
+        action: "resolve_incident"
+        target_workflow: "monitoring-agent"
+
+  triage-agent:
+    name: "Triage Agent"
+    description: "Gather comprehensive diagnostic data upon failure detection"
+    type: "event-driven"
+    agent_type: "triage"
+
+    deployment:
+      runtime: "python-3.11"
+      memory: "1Gi"
+      cpu: "1000m"
+      replicas: 1
+      timeout: 1800  # 30 minutes
+
+      environment:
+        AGENT_NAME: "triage"
+        LOG_WINDOW_MINUTES: "15"
+        MAX_LOG_LINES: "1000"
+        DIAGNOSTIC_TIMEOUT: "120"
+        SKIP_UNAVAILABLE_TOOLS: "true"
+        ELASTICSEARCH_ENDPOINT: "${ELASTICSEARCH_ENDPOINT}"
+        LOG_API_ENDPOINT: "${LOG_API_ENDPOINT}"
+
+    # Triggers
+    triggers:
+      - type: "event"
+        event_source: "monitoring-agent"
+        event_type: "triage_request"
+        enabled: true
+
+    # Dependencies
+    depends_on:
+      - "monitoring-agent"
+
+    # Event handlers
+    event_handlers:
+      - event: "triage_completed"
+        action: "trigger_analysis_workflow"
+        target_workflow: "analysis-agent"
+
+  analysis-agent:
+    name: "Analysis Agent"
+    description: "Perform LLM-powered root cause analysis"
+    type: "event-driven"
+    agent_type: "analysis"
+
+    deployment:
+      runtime: "python-3.11"
+      memory: "2Gi"
+      cpu: "2000m"
+      replicas: 1
+      timeout: 900  # 15 minutes
+
+      environment:
+        AGENT_NAME: "analysis"
+        LLM_MODEL: "gpt-4"
+        CONFIDENCE_THRESHOLD: "0.7"
+        MAX_HYPOTHESES: "3"
+        HISTORICAL_CONTEXT_HOURS: "24"
+        COMPLETION_API_KEY: "${OPENAI_API_KEY}"
+
+    # Triggers
+    triggers:
+      - type: "event"
+        event_source: "triage-agent"
+        event_type: "analysis_request"
+        enabled: true
+
+    # Dependencies
+    depends_on:
+      - "triage-agent"
+
+    # Event handlers
+    event_handlers:
+      - event: "analysis_completed"
+        action: "trigger_notification_workflow"
+        target_workflow: "notification-agent"
+
+  notification-agent:
+    name: "Notification Agent"
+    description: "Synthesize findings into actionable alerts"
+    type: "event-driven"
+    agent_type: "notification"
+
+    deployment:
+      runtime: "python-3.11"
+      memory: "512Mi"
+      cpu: "500m"
+      replicas: 1
+      timeout: 300  # 5 minutes
+
+      environment:
+        AGENT_NAME: "notification"
+        COOLDOWN_PERIOD: "15"
+        ESCALATION_THRESHOLD: "2"
+        MAX_RETRY_ATTEMPTS: "3"
+        DELIVERY_CHANNELS: "slack,email"
+
+        # Notification service configurations
+        SLACK_WEBHOOK_URL: "${SLACK_WEBHOOK_URL}"
+        SMTP_HOST: "${SMTP_HOST}"
+        SMTP_PORT: "${SMTP_PORT}"
+        SMTP_USERNAME: "${SMTP_USERNAME}"
+        SMTP_PASSWORD: "${SMTP_PASSWORD}"
+        SMTP_FROM_ADDRESS: "devops-sentinel@company.com"
+
+        # PagerDuty (optional)
+        PAGERDUTY_INTEGRATION_KEY: "${PAGERDUTY_INTEGRATION_KEY}"
+
+        # Teams (optional)
+        TEAMS_WEBHOOK_URL: "${TEAMS_WEBHOOK_URL}"
+
+    # Triggers
+    triggers:
+      - type: "event"
+        event_source: "analysis-agent"
+        event_type: "notification_request"
+        enabled: true
+
+    # Dependencies
+    depends_on:
+      - "analysis-agent"
+
+# Inter-agent communication configuration
+communication:
+  # Message bus configuration
+  message_bus:
+    type: "internal"
+    persistence: true
+    retention_days: 30
+
+  # Event routing rules
+  event_routing:
+    - from: "monitoring-agent"
+      to: "triage-agent"
+      events: ["triage_request"]
+
+    - from: "triage-agent"
+      to: "analysis-agent"
+      events: ["analysis_request"]
+
+    - from: "analysis-agent"
+      to: "notification-agent"
+      events: ["notification_request"]
+
+    - from: "notification-agent"
+      to: "monitoring-agent"
+      events: ["incident_acknowledged", "incident_resolved"]
+
+# State management configuration
+state_management:
+  # Incident tracking
+  incidents:
+    storage_type: "persistent"
+    retention_days: 90
+    backup_enabled: true
+
+  # Agent state
+  agent_state:
+    storage_type: "ephemeral"
+    sync_interval: 60
+
+# Monitoring and observability
+monitoring:
+  # Agent health monitoring
+  agent_health:
+    enabled: true
+    check_interval: 30
+    failure_threshold: 3
+
+  # Performance metrics
+  metrics:
+    enabled: true
+    collection_interval: 60
+    retention_days: 7
+
+  # Logging
+  logging:
+    level: "INFO"
+    format: "json"
+    retention_days: 30
+
+# Security configuration
+security:
+  # Environment variable encryption
+  encrypted_variables:
+    - "OPENAI_API_KEY"
+    - "SLACK_WEBHOOK_URL"
+    - "SMTP_PASSWORD"
+    - "PAGERDUTY_INTEGRATION_KEY"
+    - "TEAMS_WEBHOOK_URL"
+
+  # Network policies
+  network_policies:
+    - from: "monitoring-agent"
+      to: ["internet"]  # For endpoint health checks
+
+    - from: "triage-agent"
+      to: ["internet"]  # For log collection and diagnostics
+
+    - from: "analysis-agent"
+      to: ["internet"]  # For LLM API calls
+
+    - from: "notification-agent"
+      to: ["internet"]  # For external notification services
+
+# Scaling configuration
+scaling:
+  # Auto-scaling policies
+  auto_scaling:
+    monitoring-agent:
+      min_replicas: 1
+      max_replicas: 2
+      target_cpu_utilization: 70
+
+    triage-agent:
+      min_replicas: 1
+      max_replicas: 3
+      target_queue_length: 5
+
+    analysis-agent:
+      min_replicas: 1
+      max_replicas: 2
+      target_cpu_utilization: 80
+
+    notification-agent:
+      min_replicas: 1
+      max_replicas: 2
+      target_queue_length: 10
+
+# Deployment strategy
+deployment_strategy:
+  type: "rolling"
+  max_unavailable: 0
+  max_surge: 1
+
+  # Health check configuration
+  health_checks:
+    initial_delay_seconds: 30
+    period_seconds: 10
+    timeout_seconds: 5
+    failure_threshold: 3
+    success_threshold: 1
+
+# Resource limits
+resource_limits:
+  monitoring-agent:
+    memory_limit: "1Gi"
+    cpu_limit: "1000m"
+
+  triage-agent:
+    memory_limit: "2Gi"
+    cpu_limit: "2000m"
+
+  analysis-agent:
+    memory_limit: "4Gi"
+    cpu_limit: "4000m"
+
+  notification-agent:
+    memory_limit: "1Gi"
+    cpu_limit: "1000m"
+
+# Backup and disaster recovery
+backup:
+  enabled: true
+  schedule: "daily"
+  retention_days: 30
+  storage_location: "secure-backup-storage"
+
+# Compliance and audit
+compliance:
+  audit_logging:
+    enabled: true
+    log_all_events: true
+
+  data_retention:
+    incidents: "90 days"
+    logs: "30 days"
+    metrics: "7 days"
+
+  access_control:
+    rbac_enabled: true
+    minimum_privilege: true
