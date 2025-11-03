@@ -1,0 +1,43 @@
+# DevOps Sentinel Agent Configuration
+
+agents:
+  monitoring:
+    name: "Monitoring Agent"
+    description: "Continuous health monitoring of API endpoints"
+    poll_interval: 60  # seconds
+    timeout: 30         # seconds per check
+    failure_threshold: 2 # consecutive failures before triggering workflow
+    retry_attempts: 3   # retry attempts for network timeouts
+    retry_backoff: 5    # seconds between retries
+    ssl_warning_days: 30  # days before SSL expiry to warn
+
+  triage:
+    name: "Triage Agent"
+    description: "Gather comprehensive diagnostic data upon failure detection"
+    log_window_minutes: 15  # minutes of logs to collect
+    max_log_lines: 1000     # maximum log lines to process
+    diagnostic_timeout: 120  # seconds for diagnostic collection
+    skip_unavailable_tools: true  # continue if some diagnostics fail
+
+  analysis:
+    name: "Analysis Agent"
+    description: "Perform LLM-powered root cause analysis"
+    llm_model: "gpt-4"  # Compyle-optimized model selection
+    confidence_threshold: 0.7  # minimum confidence for hypotheses
+    max_hypotheses: 3     # maximum hypotheses to generate
+    historical_context_hours: 24  # hours of historical data to consider
+
+  notification:
+    name: "Notification Agent"
+    description: "Synthesize findings into actionable alerts"
+    cooldown_period: 15   # minutes between similar alerts
+    escalation_threshold: 2  # hours before alert escalation
+    max_retry_attempts: 3  # retry attempts for failed notifications
+    delivery_channels: ["slack", "email"]  # primary notification methods
+
+# Global Settings
+global:
+  log_level: "INFO"
+  max_concurrent_incidents: 10
+  incident_timeout: 3600  # seconds (1 hour)
+  state_retention_days: 30
