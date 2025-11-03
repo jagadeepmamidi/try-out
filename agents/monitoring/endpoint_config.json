@@ -1,0 +1,21 @@
+{
+  "monitoring_settings": {
+    "poll_interval_seconds": 60,
+    "timeout_seconds": 30,
+    "failure_threshold": 2,
+    "retry_attempts": 3,
+    "retry_backoff_seconds": 5,
+    "ssl_warning_days": 30
+  },
+  "health_check_thresholds": {
+    "response_time_warning_ms": 3000,
+    "response_time_critical_ms": 10000,
+    "consecutive_failures_for_incident": 2
+  },
+  "compyle_integration": {
+    "agent_name": "monitoring",
+    "workflow_trigger": "continuous_monitoring",
+    "message_queue_type": "internal",
+    "state_persistence": true
+  }
+}

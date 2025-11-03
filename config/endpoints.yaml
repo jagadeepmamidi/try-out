@@ -1,0 +1,52 @@
+endpoints:
+  # External APIs
+  - name: "Payment Gateway API"
+    url: "https://api.stripe.com/v1/health"
+    method: "GET"
+    timeout: 30
+    expected_status: [200]
+    response_time_threshold: 3000
+
+  - name: "Email Service API"
+    url: "https://api.sendgrid.com/v3/health"
+    method: "GET"
+    timeout: 30
+    expected_status: [200, 201]
+    response_time_threshold: 5000
+
+  # Internal Microservices
+  - name: "User Service"
+    url: "http://user-service:8080/health"
+    method: "GET"
+    timeout: 30
+    expected_status: [200]
+    response_time_threshold: 2000
+
+  - name: "Order Service"
+    url: "http://order-service:8080/health"
+    method: "GET"
+    timeout: 30
+    expected_status: [200]
+    response_time_threshold: 2000
+
+  - name: "Inventory Service"
+    url: "http://inventory-service:8080/health"
+    method: "GET"
+    timeout: 30
+    expected_status: [200]
+    response_time_threshold: 2000
+
+  # Database Connections
+  - name: "Primary Database"
+    url: "http://db-monitor:3000/postgres/health"
+    method: "GET"
+    timeout: 30
+    expected_status: [200]
+    response_time_threshold: 1000
+
+  - name: "Redis Cache"
+    url: "http://redis-monitor:3000/redis/health"
+    method: "GET"
+    timeout: 30
+    expected_status: [200]
+    response_time_threshold: 500
