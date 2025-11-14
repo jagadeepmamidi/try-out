@@ -176,18 +176,6 @@ delivery_channels:
       from_address: "DevOps Sentinel <alerts@company.com>"
 ```
 
-### PagerDuty Integration
-
-Optional PagerDuty integration for critical alerts:
-
-```yaml
-delivery_channels:
-  pagerduty:
-    enabled: true
-    min_alert_level: "high"
-    integration_key: "your-integration-key"
-```
-
 ##  Alert Format
 
 ### Slack Message Example
