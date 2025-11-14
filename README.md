@@ -2,11 +2,11 @@
 
 An autonomous monitoring and diagnostics system built on the Compyle platform that drastically reduces Mean Time to Detection (MTTD) for web service outages through intelligent agent collaboration.
 
-## 🎯 Overview
+##  Overview
 
 DevOps Sentinel transforms the manual, time-consuming process of identifying and analyzing service failures into a proactive, intelligent workflow. The system uses a team of specialized AI agents to continuously monitor services, automatically diagnose issues, and provide actionable insights to DevOps teams.
 
-## 🤖 Agent Architecture
+##  Agent Architecture
 
 ### System Flow
 1. **Monitoring Agent** detects endpoint failure
@@ -19,7 +19,7 @@ DevOps Sentinel transforms the manual, time-consuming process of identifying and
 - **Timeout**: 30 seconds per check
 - **Failure Threshold**: 2 consecutive failures trigger workflow
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 try-out/
@@ -50,7 +50,7 @@ try-out/
     └── utils.py                   # Common utilities
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -103,7 +103,7 @@ PAGERDUTY_INTEGRATION_KEY=...
 TEAMS_WEBHOOK_URL=https://outlook.office.com/webhook/...
 ```
 
-## 📊 Monitoring Configuration
+##  Monitoring Configuration
 
 ### Adding Endpoints
 
@@ -150,7 +150,7 @@ agents:
     delivery_channels: ["slack", "email"]
 ```
 
-## 🔔 Notification Channels
+##  Notification Channels
 
 ### Slack Integration
 
@@ -188,21 +188,21 @@ delivery_channels:
     integration_key: "your-integration-key"
 ```
 
-## 📈 Alert Format
+##  Alert Format
 
 ### Slack Message Example
 
 ```
-🚨 SERVICE ALERT: User Service
+ SERVICE ALERT: User Service
 
-📍 Issue: Database connection error detected in logs
-🔍 Evidence: Found 15 errors in recent logs; Failed: ping, traceroute
-⚡ Impact: Degraded performance for User Service
-🛠️ Recommended Actions: Check database server availability; Verify connection string
-📊 Confidence: HIGH confidence
-⏰ Detected: 2024-01-15T14:30:00Z
+ Issue: Database connection error detected in logs
+ Evidence: Found 15 errors in recent logs; Failed: ping, traceroute
+ Impact: Degraded performance for User Service
+ Recommended Actions: Check database server availability; Verify connection string
+ Confidence: HIGH confidence
+ Detected: 2024-01-15T14:30:00Z
 
-🔧 Quick Actions: [View Logs] [Check Metrics] [Acknowledge]
+ Quick Actions: [View Logs] [Check Metrics] [Acknowledge]
 ```
 
 ### Email Alert Example
@@ -215,7 +215,7 @@ The email includes:
 - Recommended actions
 - Links to incident details and monitoring dashboards
 
-## 🔍 Advanced Features
+##  Advanced Features
 
 ### Root Cause Analysis
 
@@ -243,7 +243,7 @@ The Triage Agent automatically collects:
 - **Multi-channel Delivery**: Simultaneous Slack and email notifications
 - **Context-aware Alerts**: Different formats based on incident severity
 
-## 🛠️ Development
+##  Development
 
 ### Running Locally
 
@@ -280,7 +280,7 @@ python deployment/scripts/test_workflow.py
 4. Update deployment configuration
 5. Add to workflow configuration
 
-## 📊 Monitoring and Observability
+##  Monitoring and Observability
 
 ### Agent Health Monitoring
 
@@ -305,7 +305,7 @@ Structured JSON logging with:
 - Configurable log levels
 - Log retention policies
 
-## 🔧 Configuration Management
+##  Configuration Management
 
 ### Environment-based Configuration
 
@@ -321,7 +321,7 @@ Structured JSON logging with:
 - Secure credential storage
 - Access control and auditing
 
-## 🚨 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 
@@ -357,7 +357,7 @@ Check system status:
 ./deployment/scripts/status.sh
 ```
 
-## 📚 API Reference
+##  API Reference
 
 ### Agent Communication
 
@@ -377,7 +377,7 @@ Messages follow this structure:
 
 See individual configuration files for detailed schema documentation.
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -385,11 +385,11 @@ See individual configuration files for detailed schema documentation.
 4. Add tests and documentation
 5. Submit a pull request
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Support
+##  Support
 
 - **Documentation**: See `/docs` directory
 - **Issues**: Create an issue on GitHub
@@ -398,7 +398,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-## 🎉 Success Metrics
+##  Success Metrics
 
 DevOps Sentinel is designed to achieve:
 
@@ -407,5 +407,3 @@ DevOps Sentinel is designed to achieve:
 - **80%+ accuracy** in root cause identification
 - **99%+ notification delivery** success rate
 - **99.9%+ monitoring system** availability
-
-Built with ❤️ by the DevOps Sentinel team.
