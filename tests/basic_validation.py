@@ -81,7 +81,7 @@ def validate_configuration_files():
     else:
         print("   ❌ endpoints.yaml not found")
 
-    # Check agents configuration
+    # Check agents configuratio
     agents_file = project_root / "config" / "agents.yaml"
     print(f"\n🤖 agents.yaml:")
     if agents_file.exists():
